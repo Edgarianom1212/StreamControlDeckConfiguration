@@ -9,16 +9,7 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="StreamDeckConfiguration">
 	<Grid RowDefinitions="1*,1*,1*" ColumnDefinitions="250, *, 250">
-		<StackPanel Grid.ColumnSpan="3" Orientation="Vertical">
-			<Label Content="{Binding StreamDeckStatus}"/>
-		</StackPanel>
-		<StackPanel Grid.Column="1" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
-			<TextBox Height="20" Width="200" Text="{Binding WIFIName, Mode=TwoWay}" Watermark="name of WIFI" HorizontalContentAlignment="Center"/>
-			<TextBox Height="20" Width="300" Text="{Binding WIFIPassword, Mode=TwoWay}" Watermark="password" HorizontalContentAlignment="Center"/>
-			<Button Content="Send WIFI data" Click="SendWIFIDataToESP" HorizontalAlignment="Center"/>
-			<Button Content="Reset WIFI" Click="SendWIFIResetToESP" HorizontalAlignment="Center"/>
-		</StackPanel>
-		<Border Width="450" Grid.Row="1" Grid.Column="1">
+		<Border Width="250" Grid.Row="1" Grid.Column="1">
 			<ItemsRepeater ItemsSource="{Binding SDButtons}" HorizontalAlignment="Center" VerticalAlignment="Center">
 				<ItemsRepeater.Layout>
 					<WrapLayout Orientation="Horizontal" HorizontalSpacing="10" VerticalSpacing="10"/>
