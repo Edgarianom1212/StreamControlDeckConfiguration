@@ -7,4 +7,14 @@
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>
+	<Application.Resources>
+		<SolidColorBrush x:Key="Background" Color="#2D2D2D"/>
+		<SolidColorBrush x:Key="DarkBackground" Color="#222222"/>
+		<SolidColorBrush x:Key="ControlBackground" Color="#373737"/>
+		<SolidColorBrush x:Key="ControlBorder" Color="#474747"/>
+		<SolidColorBrush x:Key="InputBackground" Color="#373737"/>
+		<SolidColorBrush x:Key="UnselectedForeground" Color="#969696"/>
+		<SolidColorBrush x:Key="SelectedForeground" Color="#E6E6E6"/>
+		<SolidColorBrush x:Key="Highlightbackground" Color="#C8C8C8"/>
+	</Application.Resources>
 </Application>

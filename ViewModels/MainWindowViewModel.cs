@@ -1,19 +1,28 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Controls;
+using Avalonia.Threading;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Threading;
+using Avalonia.Layout;
+using StreamDeckConfiguration.Models;
+using System.Linq;
 
 namespace StreamDeckConfiguration.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase
 	{
+		private int SDButtonCount;
+		public Label InitLabel = new Label() { Content = "Select a key to configure its action", HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+		public Label NoActionLabel = new Label() { Content = "Drag an action from the right and drop it on an empty key above", HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+
 		public MainWindowViewModel()
 		{
 			SDButtonCount = 12;
 			SDButtons = new ObservableCollection<SDButton>();
+			KeyAction = new KeyAction("", "", InitLabel);
 
 			CheckPortsForStreamDeck();
 
@@ -21,6 +30,14 @@ namespace StreamDeckConfiguration.ViewModels
 			{
 				SDButton sDButton = new SDButton(i + 1);
 				SDButtons.Add(sDButton);
+			}
+		}
+
+		public void ActivateSDButtonConfig(int Index)
+		{
+			if (SDButtons.ElementAt(Index).KeyAction == null)
+			{
+				KeyAction = new KeyAction("", "", NoActionLabel);
 			}
 		}
 
@@ -73,7 +90,13 @@ namespace StreamDeckConfiguration.ViewModels
 		}
 
 		public ObservableCollection<SDButton> SDButtons { get; set; }
-		private int SDButtonCount;
 		public SerialPort StreamDeckPort { get; set; }
-    }
+
+		private KeyAction keyAction;
+		public KeyAction KeyAction
+		{
+			get => keyAction;
+			set => this.RaiseAndSetIfChanged(ref keyAction, value);
+		}
+	}
 }

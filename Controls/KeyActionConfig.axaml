@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:i="https://github.com/projektanker/icons.avalonia"
+			 xmlns:converters="using:StreamDeckConfiguration.Converters"
+             mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="250"
+			 Width="550" Height="250"
+             x:Class="StreamDeckConfiguration.Controls.KeyActionConfig">
+	<UserControl.Resources>
+		<converters:EmptyKeyActionToGridSpanConverter x:Key="EmptyKeyActionToGridSpanConverter"/>
+		<converters:EmptyKeyActionToGridPosConverter x:Key="EmptyKeyActionToGridPosConverter"/>
+	</UserControl.Resources>
+	<Grid ColumnDefinitions="120, *" RowDefinitions="50, *">
+		<Border Grid.Row="0" Grid.ColumnSpan="2">
+			<Panel>
+				<Label Content="{Binding KeyAction.ActionName}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+				<Button i:Attached.Icon="mdi-delete" Margin="10" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding KeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+			</Panel>
+		</Border>
+		<Panel Grid.Column="0" Grid.Row="1">
+			<i:Icon Value="{Binding KeyAction.IconName}" FontSize="70" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		</Panel>
+		<ContentControl Content="{Binding KeyAction.Config}"
+						Grid.Row="{Binding KeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridPosConverter}}"
+						Grid.Column="{Binding KeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridPosConverter}}"
+						Grid.RowSpan="{Binding KeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridSpanConverter}}"
+						Grid.ColumnSpan="{Binding KeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridSpanConverter}}"/>
+	</Grid>
+</UserControl>

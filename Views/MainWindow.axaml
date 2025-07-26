@@ -3,23 +3,53 @@
         xmlns:vm="using:StreamDeckConfiguration.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+		xmlns:controls="using:StreamDeckConfiguration.Controls"
+		xmlns:converters="using:StreamDeckConfiguration.Converters"
+        mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="750"
         x:Class="StreamDeckConfiguration.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+		x:CompileBindings="True"
         Icon="/Assets/avalonia-logo.ico"
-        Title="StreamDeckConfiguration">
-	<Grid RowDefinitions="1*,1*,1*" ColumnDefinitions="250, *, 250">
-		<Border Width="250" Grid.Row="1" Grid.Column="1">
-			<ItemsRepeater ItemsSource="{Binding SDButtons}" HorizontalAlignment="Center" VerticalAlignment="Center">
-				<ItemsRepeater.Layout>
-					<WrapLayout Orientation="Horizontal" HorizontalSpacing="10" VerticalSpacing="10"/>
-				</ItemsRepeater.Layout>
-				<ItemsRepeater.ItemTemplate>
-					<DataTemplate>
-						<Button Content="{Binding ID}" Width="50" Height="50" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
-					</DataTemplate>
-				</ItemsRepeater.ItemTemplate>
-			</ItemsRepeater>
+        Title="StreamDeckConfiguration"
+		Background="{StaticResource Background}"
+		RequestedThemeVariant="Dark"
+		Width="850" Height="750" MinWidth="850" MinHeight="750">
+	<Window.Resources>
+		<converters:CheckedToBrushConverter x:Key="CheckedToBrushConverter"/>
+	</Window.Resources>
+	<Grid RowDefinitions="2*, 1*" ColumnDefinitions="2*, 1*">
+		<Border Grid.Row="0" Grid.Column="0" BorderBrush="{StaticResource DarkBackground}" BorderThickness="0,0,0,2">
+			<Panel Width="400">
+				<ItemsRepeater ItemsSource="{Binding SDButtons}" HorizontalAlignment="Center" VerticalAlignment="Center">
+					<ItemsRepeater.Layout>
+						<WrapLayout Orientation="Horizontal" HorizontalSpacing="17" VerticalSpacing="17"/>
+					</ItemsRepeater.Layout>
+					<ItemsRepeater.ItemTemplate>
+						<DataTemplate>
+							<Border BorderThickness="4" CornerRadius="10" Width="80" Height="80" Background="Black" BorderBrush="{Binding IsActive, Converter={StaticResource CheckedToBrushConverter}}" ZIndex="10">
+								<ToggleButton Content="{Binding ID}" Checked="SDButtonChecked" Unchecked="SDButtonUnchecked" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsChecked="{Binding IsActive, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ZIndex="5">
+									<ToggleButton.Styles>
+										<Style Selector="ToggleButton ContentPresenter">
+											<Setter Property="Background" Value="Transparent"/>
+										</Style>
+										<Style Selector="ToggleButton:checked ContentPresenter">
+											<Setter Property="Background" Value="Transparent"/>
+										</Style>
+										<Style Selector="ToggleButton:pointerover ContentPresenter">
+											<Setter Property="Background" Value="Transparent"/>
+										</Style>
+									</ToggleButton.Styles>
+								</ToggleButton>
+							</Border>
+						</DataTemplate>
+					</ItemsRepeater.ItemTemplate>
+				</ItemsRepeater>
+			</Panel>
+		</Border>
+		<Border Grid.Row="1" Grid.Column="0" MinWidth="550" MinHeight="250">
+			<controls:KeyActionConfig/>
+		</Border>
+		<Border Grid.RowSpan="2" Grid.Column="1" BorderBrush="{StaticResource DarkBackground}" Background="{StaticResource DarkBackground}" BorderThickness="2,0,0,0">
 		</Border>
 	</Grid>
 </Window>
