@@ -9,6 +9,7 @@ using System.Threading;
 using Avalonia.Layout;
 using StreamDeckConfiguration.Models;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace StreamDeckConfiguration.ViewModels
 {
@@ -22,7 +23,7 @@ namespace StreamDeckConfiguration.ViewModels
 		{
 			SDButtonCount = 12;
 			SDButtons = new ObservableCollection<SDButton>();
-			KeyAction = new KeyAction("", "", InitLabel);
+			ActiveKeyAction = new KeyAction("", "", InitLabel);
 
 			CheckPortsForStreamDeck();
 
@@ -37,7 +38,7 @@ namespace StreamDeckConfiguration.ViewModels
 		{
 			if (SDButtons.ElementAt(Index).KeyAction == null)
 			{
-				KeyAction = new KeyAction("", "", NoActionLabel);
+				ActiveKeyAction = new KeyAction("", "", NoActionLabel);
 			}
 		}
 
@@ -92,11 +93,13 @@ namespace StreamDeckConfiguration.ViewModels
 		public ObservableCollection<SDButton> SDButtons { get; set; }
 		public SerialPort StreamDeckPort { get; set; }
 
-		private KeyAction keyAction;
-		public KeyAction KeyAction
+		public List<KeyAction> KeyActionList => GlobalData.KeyActionList;
+
+		private KeyAction activeKeyAction;
+		public KeyAction ActiveKeyAction
 		{
-			get => keyAction;
-			set => this.RaiseAndSetIfChanged(ref keyAction, value);
+			get => activeKeyAction;
+			set => this.RaiseAndSetIfChanged(ref activeKeyAction, value);
 		}
 	}
 }

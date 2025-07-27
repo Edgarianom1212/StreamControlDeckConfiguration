@@ -5,12 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:controls="using:StreamDeckConfiguration.Controls"
 		xmlns:converters="using:StreamDeckConfiguration.Converters"
+		xmlns:i="https://github.com/projektanker/icons.avalonia"
         mc:Ignorable="d" d:DesignWidth="850" d:DesignHeight="750"
         x:Class="StreamDeckConfiguration.Views.MainWindow"
+		x:Name="TopWindow"
         x:DataType="vm:MainWindowViewModel"
 		x:CompileBindings="True"
         Icon="/Assets/avalonia-logo.ico"
         Title="StreamDeckConfiguration"
+		DragDrop.AllowDrop="True"
+		DragDrop.DragOver="Window_DragOver"
 		Background="{StaticResource Background}"
 		RequestedThemeVariant="Dark"
 		Width="850" Height="750" MinWidth="850" MinHeight="750">
@@ -27,7 +31,9 @@
 					<ItemsRepeater.ItemTemplate>
 						<DataTemplate>
 							<Border BorderThickness="4" CornerRadius="10" Width="80" Height="80" Background="Black" BorderBrush="{Binding IsActive, Converter={StaticResource CheckedToBrushConverter}}" ZIndex="10">
-								<ToggleButton Content="{Binding ID}" Checked="SDButtonChecked" Unchecked="SDButtonUnchecked" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsChecked="{Binding IsActive, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ZIndex="5">
+								<ToggleButton Content="{Binding ID}" Checked="SDButtonChecked" Unchecked="SDButtonUnchecked" Background="Transparent" VerticalAlignment="Stretch"
+											  HorizontalAlignment="Stretch" IsChecked="{Binding IsActive, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ZIndex="5"
+											  DragDrop.Drop="OnToggleDrop">
 									<ToggleButton.Styles>
 										<Style Selector="ToggleButton ContentPresenter">
 											<Setter Property="Background" Value="Transparent"/>
@@ -50,6 +56,20 @@
 			<controls:KeyActionConfig/>
 		</Border>
 		<Border Grid.RowSpan="2" Grid.Column="1" BorderBrush="{StaticResource DarkBackground}" Background="{StaticResource DarkBackground}" BorderThickness="2,0,0,0">
+			<ItemsRepeater ItemsSource="{Binding KeyActionList}">
+				<ItemsRepeater.ItemTemplate>
+					<DataTemplate>
+						<AdornerLayer>
+							<Border PointerPressed="DragSource_PointerPressed" PointerMoved="DragSource_PointerMoved" Margin="10" CornerRadius="5" Background="{StaticResource ControlBackground}">
+								<StackPanel Orientation="Horizontal">
+									<i:Icon Value="{Binding IconName}" FontSize="25" Margin="10"/>
+									<Label Content="{Binding ActionName}" Margin="10"/>
+								</StackPanel>
+							</Border>
+						</AdornerLayer>
+					</DataTemplate>
+				</ItemsRepeater.ItemTemplate>
+			</ItemsRepeater>
 		</Border>
 	</Grid>
 </Window>

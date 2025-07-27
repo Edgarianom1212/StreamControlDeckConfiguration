@@ -11,20 +11,20 @@
 		<converters:EmptyKeyActionToGridSpanConverter x:Key="EmptyKeyActionToGridSpanConverter"/>
 		<converters:EmptyKeyActionToGridPosConverter x:Key="EmptyKeyActionToGridPosConverter"/>
 	</UserControl.Resources>
-	<Grid ColumnDefinitions="120, *" RowDefinitions="50, *">
+	<Grid ColumnDefinitions="120, 430" RowDefinitions="50, 200">
 		<Border Grid.Row="0" Grid.ColumnSpan="2">
 			<Panel>
-				<Label Content="{Binding KeyAction.ActionName}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-				<Button i:Attached.Icon="mdi-delete" Margin="10" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding KeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+				<Label Content="{Binding ActiveKeyAction.ActionName}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+				<Button i:Attached.Icon="mdi-delete" Margin="10" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 			</Panel>
 		</Border>
 		<Panel Grid.Column="0" Grid.Row="1">
-			<i:Icon Value="{Binding KeyAction.IconName}" FontSize="70" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			<i:Icon Value="{Binding ActiveKeyAction.IconName}" FontSize="70" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 		</Panel>
-		<ContentControl Content="{Binding KeyAction.Config}"
-						Grid.Row="{Binding KeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridPosConverter}}"
-						Grid.Column="{Binding KeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridPosConverter}}"
-						Grid.RowSpan="{Binding KeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridSpanConverter}}"
-						Grid.ColumnSpan="{Binding KeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridSpanConverter}}"/>
+		<ContentControl Content="{Binding ActiveKeyAction.Config}"
+						Grid.Row="{Binding ActiveKeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridPosConverter}}"
+						Grid.Column="{Binding ActiveKeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridPosConverter}}"
+						Grid.RowSpan="{Binding ActiveKeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridSpanConverter}}"
+						Grid.ColumnSpan="{Binding ActiveKeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridSpanConverter}}"/>
 	</Grid>
 </UserControl>
