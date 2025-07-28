@@ -11,6 +11,10 @@ using Avalonia;
 using StreamDeckConfiguration.Models;
 using Avalonia.Media;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
+using Avalonia.Controls.Presenters;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace StreamDeckConfiguration.Views
 {
@@ -18,10 +22,11 @@ namespace StreamDeckConfiguration.Views
 	{
 
 		public MainWindowViewModel vm;
-		private Point DragStart;
-		private Popup? DragPopup;
-		private StackPanel preview;
-		private Point OldPointerPosition;
+		private Point dragStartPoint;
+		private Popup? dragPopup;
+		private Border preview;
+		private Point oldPointerPosition;
+		private bool handleUnchecking = true;
 
 		public MainWindow()
 		{
@@ -30,7 +35,6 @@ namespace StreamDeckConfiguration.Views
 			DataContext = vm;
 		}
 
-		private bool handleUnchecking = true;
 
 		private void SDButtonChecked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
@@ -63,90 +67,128 @@ namespace StreamDeckConfiguration.Views
 		private void DragSource_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
 		{
 			if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-				DragStart = e.GetPosition(this);
+				dragStartPoint = e.GetPosition(this);
 		}
 
 		private async void DragSource_PointerMoved(object? sender, PointerEventArgs e)
 		{
-			if (sender is Border dragSource &&
-				dragSource.DataContext is KeyAction action)
+			if (sender is Control dragSource && dragSource.DataContext is KeyAction action)
 			{
-				var current = e.GetPosition(this);
+				Point current = e.GetPosition(this);
 
-				// 1) Threshold prüfen
-				if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
-					(Math.Abs(current.X - DragStart.X) > 3 ||
-					 Math.Abs(current.Y - DragStart.Y) > 3))
+				//slight treshhold for dragging
+				if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && (Math.Abs(current.X - dragStartPoint.X) > 3 || Math.Abs(current.Y - dragStartPoint.Y) > 3))
 				{
-					// 2) Vorschau-Adorner anlegen
-					preview = new StackPanel
+					preview = new Border
 					{
 						Width = 200,
 						Height = 40,
-						Orientation = Avalonia.Layout.Orientation.Horizontal,
-						Background = Brushes.Black,
-						Opacity = 0.5,
-						IsHitTestVisible = false,             // lässt DragOver durch
+						Background = Application.Current.Resources["ControlBackground"] as SolidColorBrush,
+						IsHitTestVisible = false,
+						Child = new StackPanel
+						{
+							Orientation = Avalonia.Layout.Orientation.Horizontal,
+						},
 					};
-					preview.Children.Add(new Projektanker.Icons.Avalonia.Icon { Value = action.IconName, FontSize = 15, Margin = new Thickness(5) });
-					preview.Children.Add(new Label { Content = action.ActionName, Margin = new Thickness(5) });
 
-					DragPopup = new Popup
+					((StackPanel)preview.Child).Children.Add(new Projektanker.Icons.Avalonia.Icon { Value = action.IconName, FontSize = 15, Margin = new Thickness(5), Foreground = Brushes.White, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+					((StackPanel)preview.Child).Children.Add(new Label { Content = action.ActionName, Margin = new Thickness(5), Foreground = Brushes.White, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+
+					dragPopup = new Popup
 					{
 						Child = preview,
 						Placement = PlacementMode.Pointer,
 						PlacementTarget = dragSource,
 						IsLightDismissEnabled = false,
-						// Start-Position grob in der Mitte des Borders
 						IsHitTestVisible = false,
-						RenderTransform = new TranslateTransform(),
 					};
 
-					DragPopup.HorizontalOffset = 10;
-					DragPopup.VerticalOffset = 10;
+					dragPopup.HorizontalOffset = 10;
+					dragPopup.VerticalOffset = 10;
 
-					OldPointerPosition = e.GetPosition(TopWindow);
-					DragPopup.Open();
+					oldPointerPosition = e.GetPosition(TopWindow);
+					dragPopup.Open();
 
-					// 3) Daten für Drop
-					var data = new DataObject();
-					data.Set("myFormat", action);
+					//data for drop operation
+					DataObject data = new DataObject();
+					data.Set("KeyAction", action);
 
-					// 4) Starte die eingebaute Drag-Schleife
+					//start the dragOver loop
 					await DragDrop.DoDragDrop(e, data, DragDropEffects.Copy);
 
-					DragPopup.IsOpen = false;
-					DragPopup = null;
+					dragPopup.IsOpen = false;
+					dragPopup = null;
 					preview = null;
 				}
 			}
 		}
 
-		private DateTime lastMove = DateTime.MinValue;	
 		private void Window_DragOver(object? sender, DragEventArgs e)
 		{
-			if (DragPopup == null)
+			if (dragPopup == null)
 				return;
-
-			if ((DateTime.Now - lastMove).TotalMilliseconds < 8)
-				return;
-			lastMove = DateTime.Now;
 
 			Point p = e.GetPosition(TopWindow);
+			Visual? visual = TopWindow.InputHitTest(p) as Visual;
+			
+			IEnumerable<Visual> parents = visual.GetVisualAncestors();
+			IEnumerator<Visual> enumerator = parents.GetEnumerator();
 
-			double x = OldPointerPosition.X - p.X;
-			double y = OldPointerPosition.Y - p.Y;
+			for (int i = 0; i < 3; i++)
+			{
 
-			DragPopup.HorizontalOffset = x + 10;
-			DragPopup.VerticalOffset = y + 10;
+				if (enumerator.Current is ToggleButton)
+				{
+					e.DragEffects = DragDropEffects.Copy;
+					break;
+				}
+				else
+				{
+					e.DragEffects = DragDropEffects.None;
+				}
+				if (!enumerator.MoveNext())
+				{
+					break;
+				}
+			}
 
-			OldPointerPosition = p;
+			double x = oldPointerPosition.X - p.X;
+			double y = oldPointerPosition.Y - p.Y;
+
+			dragPopup.HorizontalOffset = x + 10;
+			dragPopup.VerticalOffset = y + 10;
+
+			oldPointerPosition = p;
 		}
-
 
 		private void OnToggleDrop(object? sender, DragEventArgs e)
 		{
+			if (sender is ToggleButton toggleButton && toggleButton.DataContext is SDButton sdButton)
+			{
+				if (e.Data.Contains("KeyAction"))
+				{
+					if (e.Data.Get("KeyAction") is KeyAction keyAction)
+					{
+						sdButton.KeyAction = new KeyAction(keyAction);
+						if (toggleButton.IsChecked == true)
+						{
+							vm.ActivateSDButtonConfig(sdButton.Index-1);
+						}
+						else
+						{
+							toggleButton.IsChecked = true;
+						}
+					}
+				}
+			}
+		}
 
+		private void ToggleButtonExecuteAction(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+		{
+			if (sender is MenuItem menuItem && menuItem.DataContext is SDButton sdButton)
+			{
+				GlobalData.ExecuteAction(sdButton.KeyAction.Config);
+			}
 		}
 	}
 }

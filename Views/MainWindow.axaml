@@ -31,9 +31,14 @@
 					<ItemsRepeater.ItemTemplate>
 						<DataTemplate>
 							<Border BorderThickness="4" CornerRadius="10" Width="80" Height="80" Background="Black" BorderBrush="{Binding IsActive, Converter={StaticResource CheckedToBrushConverter}}" ZIndex="10">
-								<ToggleButton Content="{Binding ID}" Checked="SDButtonChecked" Unchecked="SDButtonUnchecked" Background="Transparent" VerticalAlignment="Stretch"
+								<ToggleButton Content="{Binding Index}" Checked="SDButtonChecked" Unchecked="SDButtonUnchecked" Background="Transparent" VerticalAlignment="Stretch"
 											  HorizontalAlignment="Stretch" IsChecked="{Binding IsActive, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ZIndex="5"
 											  DragDrop.Drop="OnToggleDrop">
+									<ToggleButton.ContextMenu>
+										<ContextMenu>
+											<MenuItem Header="Execute" Click="ToggleButtonExecuteAction"/>
+										</ContextMenu>
+									</ToggleButton.ContextMenu>
 									<ToggleButton.Styles>
 										<Style Selector="ToggleButton ContentPresenter">
 											<Setter Property="Background" Value="Transparent"/>
@@ -55,21 +60,30 @@
 		<Border Grid.Row="1" Grid.Column="0" MinWidth="550" MinHeight="250">
 			<controls:KeyActionConfig/>
 		</Border>
-		<Border Grid.RowSpan="2" Grid.Column="1" BorderBrush="{StaticResource DarkBackground}" Background="{StaticResource DarkBackground}" BorderThickness="2,0,0,0">
-			<ItemsRepeater ItemsSource="{Binding KeyActionList}">
-				<ItemsRepeater.ItemTemplate>
-					<DataTemplate>
-						<AdornerLayer>
-							<Border PointerPressed="DragSource_PointerPressed" PointerMoved="DragSource_PointerMoved" Margin="10" CornerRadius="5" Background="{StaticResource ControlBackground}">
+		<StackPanel Grid.RowSpan="2" Grid.Column="1" Background="{StaticResource DarkBackground}">
+			<Border VerticalAlignment="Center" Background="{StaticResource Background}" HorizontalAlignment="Stretch" BorderBrush="{StaticResource DarkBackground}" BorderThickness="7" CornerRadius="8">
+				<Panel>
+					<i:Icon Value="mdi-reply" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Center" FontSize="20" Foreground="{StaticResource UnselectedForeground}"/>
+					<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="10">
+						<Label Content="Drag an action on the" HorizontalAlignment="Center" Foreground="{StaticResource UnselectedForeground}"/>
+						<Label Content="buttons on the left" HorizontalAlignment="Center" Foreground="{StaticResource UnselectedForeground}"/>
+					</StackPanel>
+				</Panel>
+			</Border>
+			<Border BorderThickness="2,0,0,0" BorderBrush="{StaticResource DarkBackground}">
+				<ItemsRepeater ItemsSource="{Binding KeyActionList}">
+					<ItemsRepeater.ItemTemplate>
+						<DataTemplate>
+							<Border PointerPressed="DragSource_PointerPressed" PointerMoved="DragSource_PointerMoved" Margin="10,5" CornerRadius="5" Background="{StaticResource ControlBackground}">
 								<StackPanel Orientation="Horizontal">
 									<i:Icon Value="{Binding IconName}" FontSize="25" Margin="10"/>
 									<Label Content="{Binding ActionName}" Margin="10"/>
 								</StackPanel>
 							</Border>
-						</AdornerLayer>
-					</DataTemplate>
-				</ItemsRepeater.ItemTemplate>
-			</ItemsRepeater>
-		</Border>
+						</DataTemplate>
+					</ItemsRepeater.ItemTemplate>
+				</ItemsRepeater>
+			</Border>
+		</StackPanel>
 	</Grid>
 </Window>

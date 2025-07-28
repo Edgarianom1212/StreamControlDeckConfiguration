@@ -18,6 +18,18 @@ namespace StreamDeckConfiguration.Models
 			this.Config = Config;
 		}
 
+		public KeyAction(KeyAction keyAction)
+		{
+			ActionName = keyAction.ActionName;
+			IconName = keyAction.IconName;
+			Config = Activator.CreateInstance(keyAction.Config.GetType()) as Control;
+		}
+
+		public void ExecuteAction()
+		{
+
+		}
+
 		private string actionName;
 		public string ActionName
 		{

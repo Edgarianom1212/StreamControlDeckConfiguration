@@ -6,6 +6,7 @@
 			 xmlns:converters="using:StreamDeckConfiguration.Converters"
              mc:Ignorable="d" d:DesignWidth="550" d:DesignHeight="250"
 			 Width="550" Height="250"
+			 Background="{StaticResource Background}"
              x:Class="StreamDeckConfiguration.Controls.KeyActionConfig">
 	<UserControl.Resources>
 		<converters:EmptyKeyActionToGridSpanConverter x:Key="EmptyKeyActionToGridSpanConverter"/>
@@ -13,14 +14,15 @@
 	</UserControl.Resources>
 	<Grid ColumnDefinitions="120, 430" RowDefinitions="50, 200">
 		<Border Grid.Row="0" Grid.ColumnSpan="2">
-			<Panel>
-				<Label Content="{Binding ActiveKeyAction.ActionName}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-				<Button i:Attached.Icon="mdi-delete" Margin="10" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+			<Panel Margin="30,10,30,0">
+				<Label Content="{Binding ActiveKeyAction.ActionName, FallbackValue=ActionName}" Padding="0" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+				<Button i:Attached.Icon="mdi-delete" FontSize="25" Background="{StaticResource ControlBackground}" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 			</Panel>
 		</Border>
-		<Panel Grid.Column="0" Grid.Row="1">
-			<i:Icon Value="{Binding ActiveKeyAction.IconName}" FontSize="70" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-		</Panel>
+		<Separator Margin="30,-120,30,0" Grid.ColumnSpan="2" Grid.RowSpan="2" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+		<Border Grid.Column="0" Grid.Row="1" Margin="30,0,0,0" Background="{StaticResource ControlBackground}" Width="90" Height="90" CornerRadius="10" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+			<i:Icon Value="{Binding ActiveKeyAction.IconName, FallbackValue=mdi-account}" FontSize="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		</Border>
 		<ContentControl Content="{Binding ActiveKeyAction.Config}"
 						Grid.Row="{Binding ActiveKeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridPosConverter}}"
 						Grid.Column="{Binding ActiveKeyAction.ActionName, Converter={StaticResource EmptyKeyActionToGridPosConverter}}"

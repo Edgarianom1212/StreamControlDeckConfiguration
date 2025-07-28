@@ -9,5 +9,9 @@ public partial class HttpRequest : UserControl
     public HttpRequest()
     {
         InitializeComponent();
+        DataContext = this;
     }
+
+    public string RequestString { get; set; }
+    public string RequestBody { get; set; }
 }

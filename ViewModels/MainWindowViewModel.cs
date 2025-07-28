@@ -40,6 +40,10 @@ namespace StreamDeckConfiguration.ViewModels
 			{
 				ActiveKeyAction = new KeyAction("", "", NoActionLabel);
 			}
+			else
+			{
+				ActiveKeyAction = SDButtons.ElementAt(Index).KeyAction;
+			}
 		}
 
 		private void CheckPortsForStreamDeck()

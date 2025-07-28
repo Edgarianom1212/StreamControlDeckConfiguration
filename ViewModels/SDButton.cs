@@ -11,18 +11,18 @@ namespace StreamDeckConfiguration.ViewModels
 	public class SDButton : ViewModelBase
 	{
 
-		public SDButton(int ID, KeyAction KeyAction = null)
+		public SDButton(int Index, KeyAction KeyAction = null)
 		{
-			this.ID = ID;
+			this.Index = Index;
 			this.KeyAction = KeyAction;
 			IsActive = false;
 		}
 
-		private int iD;
-		public int ID
+		private int index;
+		public int Index
 		{
-			get => iD;
-			set => this.RaiseAndSetIfChanged(ref iD, value);
+			get => index;
+			set => this.RaiseAndSetIfChanged(ref index, value);
 		}
 
 		private bool isActive;
