@@ -91,7 +91,22 @@ namespace StreamDeckConfiguration.ViewModels
 
 		public void ProcessIncomingMessage(string msg)
 		{
+			string buttonMessage = "MYSTREAMDECK;BUTTON";
+			int buttonMessageLength = buttonMessage.Length;
 			Debug.WriteLine(msg);
+			if (msg.StartsWith(buttonMessage))
+			{
+				string indexString = msg.Substring(buttonMessageLength);
+				int index = int.Parse(indexString);
+
+				for (int i = 0; i < SDButtons.Count; i++)
+				{
+					if (SDButtons[i].Index == index)
+					{
+						GlobalData.ExecuteAction(SDButtons[i].KeyAction.Config);
+					}
+				}
+			}
 		}
 
 		public ObservableCollection<SDButton> SDButtons { get; set; }

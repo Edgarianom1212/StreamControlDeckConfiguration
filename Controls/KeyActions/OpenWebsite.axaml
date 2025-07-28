@@ -1,0 +1,11 @@
+<controls:KeyActionUserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:controls="using:StreamDeckConfiguration.Controls"
+             mc:Ignorable="d" d:DesignWidth="430" d:DesignHeight="200"
+             x:Class="StreamDeckConfiguration.OpenWebsite">
+	<StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" Spacing="15" Margin="50,0,50,0">
+		<TextBox Watermark="URL" Text="{Binding URL}"/>
+	</StackPanel>
+</controls:KeyActionUserControl>

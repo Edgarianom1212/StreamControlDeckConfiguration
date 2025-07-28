@@ -16,10 +16,10 @@
 		<Border Grid.Row="0" Grid.ColumnSpan="2">
 			<Panel Margin="30,10,30,0">
 				<Label Content="{Binding ActiveKeyAction.ActionName, FallbackValue=ActionName}" Padding="0" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-				<Button i:Attached.Icon="mdi-delete" FontSize="25" Background="{StaticResource ControlBackground}" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+				<Button i:Attached.Icon="mdi-delete" FontSize="15" Background="{StaticResource ControlBackground}" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 			</Panel>
 		</Border>
-		<Separator Margin="30,-120,30,0" Grid.ColumnSpan="2" Grid.RowSpan="2" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+		<Separator Margin="30,-140,30,0" Grid.ColumnSpan="2" Grid.RowSpan="2" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 		<Border Grid.Column="0" Grid.Row="1" Margin="30,0,0,0" Background="{StaticResource ControlBackground}" Width="90" Height="90" CornerRadius="10" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
 			<i:Icon Value="{Binding ActiveKeyAction.IconName, FallbackValue=mdi-account}" FontSize="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 		</Border>

@@ -4,10 +4,13 @@ using Avalonia.Markup.Xaml;
 
 namespace StreamDeckConfiguration;
 
-public partial class Website : UserControl
+public partial class OpenWebsite : UserControl
 {
-    public Website()
+    public OpenWebsite()
     {
         InitializeComponent();
+        DataContext = this;
     }
+
+    public string URL { get; set; }
 }
