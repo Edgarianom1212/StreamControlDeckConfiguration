@@ -1,0 +1,11 @@
+<controls:KeyActionUserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:controls="using:StreamDeckConfiguration.Controls"
+             mc:Ignorable="d" d:DesignWidth="430" d:DesignHeight="200"
+             x:Class="StreamDeckConfiguration.HotKey">
+	<Border BorderThickness="1" CornerRadius="4" Padding="4">
+		<Button x:Name="MyShortcutButton" Content="{Binding ShortcutDisplay}" Click="Button_Click" HorizontalAlignment="Center"/>
+	</Border>
+</controls:KeyActionUserControl>

@@ -5,11 +5,11 @@
 		     xmlns:i="https://github.com/projektanker/icons.avalonia"
 			 xmlns:controls="using:StreamDeckConfiguration.Controls"
              mc:Ignorable="d" d:DesignWidth="430" d:DesignHeight="200"
-             x:Class="StreamDeckConfiguration.OpenApplication">
+             x:Class="StreamDeckConfiguration.CloseApplication">
 	<StackPanel VerticalAlignment="Center">
 		<StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" Orientation="Horizontal" Spacing="15" Margin="50,0,50,0">
-		   <TextBox IsReadOnly="True" Text="{Binding FileName}" Width="260"/>
-		   <Button i:Attached.Icon="mdi-folder" Width="32" Height="32" Click="OpenFileButton_Clicked"/>
+			<TextBox IsReadOnly="True" Text="{Binding FileName}" Width="260"/>
+			<Button i:Attached.Icon="mdi-folder" Width="32" Height="32" Click="OpenFileButton_Clicked"/>
 		</StackPanel>
 		<Label Content="{Binding FilePath}" Margin="50,0,50,0" FontSize="12" Opacity="0.5"/>
 	</StackPanel>
