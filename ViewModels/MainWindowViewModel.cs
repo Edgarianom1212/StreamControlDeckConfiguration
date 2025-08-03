@@ -10,6 +10,7 @@ using Avalonia.Layout;
 using StreamDeckConfiguration.Models;
 using System.Linq;
 using System.Collections.Generic;
+using Avalonia.Markup.Xaml;
 
 namespace StreamDeckConfiguration.ViewModels
 {
@@ -23,7 +24,9 @@ namespace StreamDeckConfiguration.ViewModels
 		{
 			SDButtonCount = 12;
 			SDButtons = new ObservableCollection<SDButton>();
-			ActiveKeyAction = new KeyAction("", "", InitLabel);
+			ActiveKeyAction = new KeyAction("", "", InitLabel, new("none", ""));
+
+			new GlobalData();
 
 			CheckPortsForStreamDeck();
 
@@ -32,13 +35,37 @@ namespace StreamDeckConfiguration.ViewModels
 				SDButton sDButton = new SDButton(i + 1);
 				SDButtons.Add(sDButton);
 			}
+
+			LoadSDConfig();
+
+			GlobalData.Instance.DiscordNeeded = CheckIfDiscordNeeded();
+		}
+
+		public bool CheckIfDiscordNeeded()
+		{
+			for (int i = 0; i < SDButtons.Count; i++)
+			{
+				if (SDButtons[i].KeyAction != null)
+				{
+					if (SDButtons[i].KeyAction.Group == GlobalData.Instance.DiscordGroup)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		private void LoadSDConfig()
+		{
+			//TODO: Load states of buttons
 		}
 
 		public void ActivateSDButtonConfig(int Index)
 		{
 			if (SDButtons.ElementAt(Index).KeyAction == null)
 			{
-				ActiveKeyAction = new KeyAction("", "", NoActionLabel);
+				ActiveKeyAction = new KeyAction("", "", NoActionLabel, new("none", ""));
 			}
 			else
 			{
@@ -102,8 +129,14 @@ namespace StreamDeckConfiguration.ViewModels
 				for (int i = 0; i < SDButtons.Count; i++)
 				{
 					if (SDButtons[i].Index == index)
-					{
-						GlobalData.ExecuteAction(SDButtons[i].KeyAction.Config);
+					{ 
+						if (SDButtons[i].KeyAction != null)
+						{
+							if (SDButtons[i].KeyAction.Config is UserControl)
+							{
+								GlobalData.Instance.ExecuteAction(SDButtons[i].KeyAction.Config);
+							}
+						}
 					}
 				}
 			}
@@ -112,7 +145,8 @@ namespace StreamDeckConfiguration.ViewModels
 		public ObservableCollection<SDButton> SDButtons { get; set; }
 		public SerialPort StreamDeckPort { get; set; }
 
-		public List<KeyAction> KeyActionList => GlobalData.KeyActionList;
+		public List<KeyAction> KeyActionList => GlobalData.Instance.KeyActionList;
+		public IEnumerable<IGrouping<KeyActionGroup, KeyAction>> GroupedKeyActions => KeyActionList.GroupBy(a => a.Group);
 
 		private KeyAction activeKeyAction;
 		public KeyAction ActiveKeyAction

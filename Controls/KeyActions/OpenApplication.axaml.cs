@@ -4,13 +4,14 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using StreamDeckConfiguration.Controls;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 
 namespace StreamDeckConfiguration;
 
-public partial class OpenApplication : UserControl, INotifyPropertyChanged
+public partial class OpenApplication : KeyActionUserControl, INotifyPropertyChanged
 {
     public OpenApplication()
     {

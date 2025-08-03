@@ -7,6 +7,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
 	<RootNamespace>StreamDeckConfiguration</RootNamespace>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,7 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.2" />
     <PackageReference Include="InputSimulator" Version="1.0.4" />
     <PackageReference Include="Projektanker.Icons.Avalonia" Version="9.6.2" />
+    <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="9.6.2" />
     <PackageReference Include="Projektanker.Icons.Avalonia.MaterialDesign" Version="9.6.2" />
     <PackageReference Include="System.IO.Ports" Version="10.0.0-preview.6.25358.103" />
     <PackageReference Include="System.Management" Version="10.0.0-preview.6.25358.103" />

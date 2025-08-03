@@ -1,10 +1,11 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using StreamDeckConfiguration.Controls;
 
 namespace StreamDeckConfiguration;
 
-public partial class HttpRequest : UserControl
+public partial class HttpRequest : KeyActionUserControl
 {
     public HttpRequest()
     {

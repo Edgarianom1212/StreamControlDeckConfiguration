@@ -15,6 +15,7 @@ using Avalonia.VisualTree;
 using Avalonia.Controls.Presenters;
 using System.Collections;
 using System.Collections.Generic;
+using StreamDeckConfiguration.Controls;
 
 namespace StreamDeckConfiguration.Views
 {
@@ -60,7 +61,7 @@ namespace StreamDeckConfiguration.Views
 		{
 			if (handleUnchecking)
 			{
-				vm.ActiveKeyAction = new Models.KeyAction("", "", vm.InitLabel);
+				vm.ActiveKeyAction = new Models.KeyAction("", "", vm.InitLabel, new("none", ""));
 			}
 		}
 
@@ -178,6 +179,7 @@ namespace StreamDeckConfiguration.Views
 						{
 							toggleButton.IsChecked = true;
 						}
+						GlobalData.Instance.DiscordNeeded = vm.CheckIfDiscordNeeded();
 					}
 				}
 			}
@@ -187,7 +189,10 @@ namespace StreamDeckConfiguration.Views
 		{
 			if (sender is MenuItem menuItem && menuItem.DataContext is SDButton sdButton)
 			{
-				GlobalData.ExecuteAction(sdButton.KeyAction.Config);
+				if (sdButton.KeyAction != null && sdButton.KeyAction.Config is Control)
+				{
+					GlobalData.Instance.ExecuteAction(sdButton.KeyAction.Config);
+				}
 			}
 		}
 	}

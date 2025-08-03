@@ -70,19 +70,50 @@
 					</StackPanel>
 				</Panel>
 			</Border>
-			<Border BorderThickness="2,0,0,0" BorderBrush="{StaticResource DarkBackground}">
-				<ItemsRepeater ItemsSource="{Binding KeyActionList}">
-					<ItemsRepeater.ItemTemplate>
-						<DataTemplate>
-							<Border PointerPressed="DragSource_PointerPressed" PointerMoved="DragSource_PointerMoved" Margin="10,5" CornerRadius="5" Background="{StaticResource ControlBackground}">
-								<StackPanel Orientation="Horizontal">
-									<i:Icon Value="{Binding IconName}" FontSize="25" Margin="10"/>
-									<Label Content="{Binding ActionName}" Margin="10"/>
-								</StackPanel>
-							</Border>
-						</DataTemplate>
-					</ItemsRepeater.ItemTemplate>
-				</ItemsRepeater>
+			<Border BorderThickness="0" BorderBrush="{StaticResource DarkBackground}">
+				<ScrollViewer>
+					<ItemsRepeater ItemsSource="{Binding GroupedKeyActions}">
+						<ItemsRepeater.ItemTemplate>
+							<DataTemplate>
+								<Expander Margin="2,2,2,0" IsExpanded="True" BorderThickness="0" CornerRadius="0" HorizontalAlignment="Stretch">
+									<Expander.Header>
+										<Panel VerticalAlignment="Center">
+											<i:Icon Value="{Binding Key.IconName}" FontSize="25" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+											<Label Content="{Binding Key.GroupName}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+										</Panel>
+									</Expander.Header>
+									<Expander.Styles>
+										<Style Selector="Expander ToggleButton#ExpanderHeader">
+											<Setter Property="BorderThickness" Value="0"/>
+											<Setter Property="Background" Value="{StaticResource ControlBackground}"/>
+										</Style>
+										<Style Selector="Expander ToggleButton:pointerover /template/ Border#ToggleButtonBackground">
+											<Setter Property="Background" Value="{StaticResource ControlBackground}"/>
+										</Style>
+										<Style Selector="Expander:expanded:down /template/ Border#ExpanderContent">
+											<Setter Property="BorderThickness" Value="0"/>
+										</Style>
+										<Style Selector="Expander:down /template/ Border#ExpanderContent">
+											<Setter Property="BorderThickness" Value="0"/>
+										</Style>
+									</Expander.Styles>
+									<ItemsRepeater ItemsSource="{Binding}">
+										<ItemsRepeater.ItemTemplate>
+											<DataTemplate>
+												<Border PointerPressed="DragSource_PointerPressed" PointerMoved="DragSource_PointerMoved" Margin="10,5" CornerRadius="5" Background="{StaticResource ControlBackground}">
+													<StackPanel Orientation="Horizontal">
+														<i:Icon Value="{Binding IconName}" FontSize="25" Margin="10"/>
+														<Label Content="{Binding ActionName}" Margin="10"/>
+													</StackPanel>
+												</Border>
+											</DataTemplate>
+										</ItemsRepeater.ItemTemplate>
+									</ItemsRepeater>
+								</Expander>
+							</DataTemplate>
+						</ItemsRepeater.ItemTemplate>
+					</ItemsRepeater>
+				</ScrollViewer>
 			</Border>
 		</StackPanel>
 	</Grid>

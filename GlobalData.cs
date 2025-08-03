@@ -15,11 +15,17 @@ using System.Text;
 using System.Threading.Tasks;
 using WindowsInput.Native;
 using WindowsInput;
+using ReactiveUI;
+using Avalonia.Threading;
+using StreamDeckConfiguration.Helpers;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace StreamDeckConfiguration;
 
-public static class GlobalData
+public class GlobalData : ReactiveObject
 {
+	public static GlobalData Instance { get; private set; }
 
 	[DllImport("user32.dll")]
 	private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
@@ -27,23 +33,59 @@ public static class GlobalData
 	private const int KEYEVENTF_KEYUP = 0x0002;
 	private const byte VK_CONTROL = 0x11;
 
-	public static List<KeyAction> KeyActionList { get; set; }
-	public static Window MainWindow { get; set; }
+	public List<KeyAction> KeyActionList { get; set; }
+	public Window MainWindow { get; set; }
 
-	static GlobalData()
+	private DispatcherTimer timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(2) };
+
+	private bool isDiscordOpen = false;
+	public bool IsDiscordOpen
 	{
+		get => isDiscordOpen;
+		set => this.RaiseAndSetIfChanged(ref isDiscordOpen, value);
+	}
+
+	private bool discordNeeded = false;
+	public bool DiscordNeeded
+	{
+		get => discordNeeded;
+		set
+		{
+			if (value)
+			{
+				timer.Tick -= CheckDiscordRunning;
+				timer.Tick += CheckDiscordRunning;
+				timer.Start();
+			}
+			else
+			{
+				timer.Tick -= CheckDiscordRunning;
+				timer.Stop();
+			}
+		}
+	}
+
+	public KeyActionGroup GeneralGroup = new KeyActionGroup("General", "mdi-keyboard-outline");
+	public KeyActionGroup DiscordGroup = new KeyActionGroup("Discord", "fa-discord");
+
+
+	public GlobalData()
+	{
+		Instance = this;
+
 		KeyActionList = new List<KeyAction>()
 		{
-			new KeyAction("HTTP Request", "mdi-web", new HttpRequest()),
-			new KeyAction("Open Website", "mdi-web", new OpenWebsite()),
-			new KeyAction("Open Application", "mdi-application-brackets-outline", new OpenApplication()),
-			new KeyAction("Close Application", "mdi-close-box-outline", new CloseApplication()),
-			new KeyAction("Text", "mdi-text-recognition", new Text()),
-			new KeyAction("HotKey", "mdi-view-grid-plus-outline", new HotKey()),
+			new KeyAction("HTTP Request", "mdi-web", new HttpRequest(), GeneralGroup),
+			new KeyAction("Open Website", "mdi-web", new OpenWebsite(), GeneralGroup),
+			new KeyAction("Open Application", "mdi-application-brackets-outline", new OpenApplication(), GeneralGroup),
+			new KeyAction("Close Application", "mdi-close-box-outline", new CloseApplication(), GeneralGroup),
+			new KeyAction("Text", "mdi-text-recognition", new Text(), GeneralGroup),
+			new KeyAction("HotKey", "mdi-view-grid-plus-outline", new HotKey(), GeneralGroup),
+			new KeyAction("Mute", "mdi-microphone-off", new DiscordMute(), DiscordGroup),
 		};
 	}
 
-	public static async void ExecuteAction(object keyActionUserControl)
+	public async void ExecuteAction(Control keyActionUserControl)
 	{
 		switch (keyActionUserControl)
 		{
@@ -65,11 +107,16 @@ public static class GlobalData
 			case HotKey hotKey:
 				PerformHotKey(hotKey.Shortcut);
 				break;
+			case DiscordMute discordMute:
+				DiscordMute();
+				break;
 		}
 	}
 
-	private static async void SendHttpRequest(string url, string body)
+	private async void SendHttpRequest(string url, string body)
 	{
+		if (body == null)
+			body = "";
 		var client = new HttpClient();
 		var content = new StringContent(body, Encoding.UTF8, "application/json");
 
@@ -78,7 +125,7 @@ public static class GlobalData
 		Debug.WriteLine(result);
 	}
 
-	private static async void OpenWebsite(string url)
+	private async void OpenWebsite(string url)
 	{
 		try
 		{
@@ -98,7 +145,7 @@ public static class GlobalData
 		}
 	}
 
-	private static async void OpenApplication(string filePath)
+	private async void OpenApplication(string filePath)
 	{
 		try
 		{
@@ -118,7 +165,7 @@ public static class GlobalData
 		}
 	}
 
-	private static async void PasteText(string text, TopLevel topLevel)
+	private async void PasteText(string text, TopLevel topLevel)
 	{
 		try
 		{
@@ -144,7 +191,7 @@ public static class GlobalData
 		}
 	}
 
-	private static void CloseApplication(string exePath)
+	private void CloseApplication(string exePath)
 	{
 		try
 		{
@@ -176,7 +223,7 @@ public static class GlobalData
 		}
 	}
 
-	private static void PerformHotKey(KeyGesture keyGesture)
+	private void PerformHotKey(KeyGesture keyGesture)
 	{
 		if (!TryMapKey(keyGesture.Key, out var mainKey))
 			return;
@@ -195,7 +242,7 @@ public static class GlobalData
 		sim.Keyboard.ModifiedKeyStroke(modifiers, mainKey);
 	}
 
-	private static bool TryMapKey(Key key, out VirtualKeyCode vk)
+	private bool TryMapKey(Key key, out VirtualKeyCode vk)
 	{
 		vk = key switch
 		{
@@ -272,5 +319,16 @@ public static class GlobalData
 		};
 
 		return vk != 0;
+	}
+
+	private void CheckDiscordRunning(object? sender, EventArgs? e)
+	{
+		Instance.IsDiscordOpen = DiscordHelper.IsDiscordVisible();
+		Debug.WriteLine("tick");
+	}
+
+	private async void DiscordMute()
+	{
+
 	}
 }
