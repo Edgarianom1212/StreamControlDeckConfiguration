@@ -16,6 +16,14 @@ It allows you to assign and trigger actions like opening apps, sending HTTP requ
 - 🎥 (Planned) Toggle **camera on/off** in Discord
 - 🔉 (Planned) Use **Discord Soundboard** via shortcut or IPC
 
+## 🚀 Getting Started
+
+```bash
+git clone https://github.com/Edgarianom1212/StreamControlDeckConfiguration.git
+cd StreamControlDeckConfiguration
+dotnet run
+```
+
 - ## 📸 Preview
 
 <p align="center">
