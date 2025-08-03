@@ -11,7 +11,7 @@
 		x:Name="TopWindow"
         x:DataType="vm:MainWindowViewModel"
 		x:CompileBindings="True"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/StreamControlDeckIcon.ico"
         Title="StreamDeckConfiguration"
 		DragDrop.AllowDrop="True"
 		DragDrop.DragOver="Window_DragOver"
