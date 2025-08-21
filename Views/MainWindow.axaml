@@ -31,7 +31,7 @@
 					<ItemsRepeater.ItemTemplate>
 						<DataTemplate>
 							<Border BorderThickness="4" CornerRadius="10" Width="80" Height="80" Background="Black" BorderBrush="{Binding IsActive, Converter={StaticResource CheckedToBrushConverter}}" ZIndex="10">
-								<ToggleButton Content="{Binding Index}" Checked="SDButtonChecked" Unchecked="SDButtonUnchecked" Background="Transparent" VerticalAlignment="Stretch"
+								<ToggleButton Checked="SDButtonChecked" Unchecked="SDButtonUnchecked" Background="Transparent" VerticalAlignment="Stretch"
 											  HorizontalAlignment="Stretch" IsChecked="{Binding IsActive, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ZIndex="5"
 											  DragDrop.Drop="OnToggleDrop">
 									<ToggleButton.ContextMenu>
