@@ -36,7 +36,19 @@ namespace StreamDeckConfiguration.ViewModels
 		public KeyAction KeyAction
 		{
 			get => keyAction;
-			set => this.RaiseAndSetIfChanged(ref keyAction, value);
+			set
+			{
+				this.RaiseAndSetIfChanged(ref keyAction, value);
+				if (keyAction != null)
+				{
+					keyAction.PropertyChanged += KeyAction_PropertyChanged;
+				}
+			}
+		}
+
+		private void KeyAction_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			this.RaisePropertyChanged(nameof(KeyAction));
 		}
 	}
 }

@@ -11,7 +11,7 @@ using System.IO;
 
 namespace StreamDeckConfiguration;
 
-public partial class CloseApplication : KeyActionUserControl, INotifyPropertyChanged
+public partial class CloseApplication : KeyActionUserControl
 {
 	public CloseApplication()
 	{
@@ -28,7 +28,7 @@ public partial class CloseApplication : KeyActionUserControl, INotifyPropertyCha
 			if (filePath != value)
 			{
 				filePath = value;
-				OnPropertyChanged(nameof(FilePath));
+				OnPropertyChanged();
 			}
 		}
 	}
@@ -42,15 +42,10 @@ public partial class CloseApplication : KeyActionUserControl, INotifyPropertyCha
 			if (fileName != value)
 			{
 				fileName = value;
-				OnPropertyChanged(nameof(FileName));
+				OnPropertyChanged();
 			}
 		}
 	}
-
-	public event PropertyChangedEventHandler PropertyChanged;
-
-	protected void OnPropertyChanged(string name) =>
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
 	private async void OpenFileButton_Clicked(object sender, RoutedEventArgs args)
 	{

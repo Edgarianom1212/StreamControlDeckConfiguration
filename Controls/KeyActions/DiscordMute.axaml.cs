@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 
 namespace StreamDeckConfiguration;
 
-public partial class DiscordMute : KeyActionUserControl, INotifyPropertyChanged
+public partial class DiscordMute : KeyActionUserControl
 {
 	public DiscordMute()
     {
@@ -21,9 +21,6 @@ public partial class DiscordMute : KeyActionUserControl, INotifyPropertyChanged
 		DiscordStatus = GlobalData.Instance.IsDiscordOpen ? "Discord is open" : "Please open Discord";
 		GlobalData.Instance.PropertyChanged += GlobalData_PropertyChanged;
 	}
-
-	public event PropertyChangedEventHandler? PropertyChanged;
-	private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
 	private void GlobalData_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 	{

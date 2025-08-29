@@ -16,6 +16,7 @@ using Avalonia.Controls.Presenters;
 using System.Collections;
 using System.Collections.Generic;
 using StreamDeckConfiguration.Controls;
+using StreamDeckConfiguration.Helpers;
 
 namespace StreamDeckConfiguration.Views
 {
@@ -39,19 +40,19 @@ namespace StreamDeckConfiguration.Views
 
 		private void SDButtonChecked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 		{
-			for (int i = 0; i < vm.SDButtons.Count; i++)
+			for (int i = 0; i < GlobalData.Instance.SDButtons.Count; i++)
 			{
 				if (sender is ToggleButton tb)
 				{
-					if (tb.DataContext == vm.SDButtons[i])
+					if (tb.DataContext == GlobalData.Instance.SDButtons[i])
 					{
 						vm.ActivateSDButtonConfig(i);
 					}
 				}
-				if (vm.SDButtons[i].IsActive)
+				if (GlobalData.Instance.SDButtons[i].IsActive)
 				{
 					handleUnchecking = false;
-					vm.SDButtons[i].IsActive = false;
+					GlobalData.Instance.SDButtons[i].IsActive = false;
 					handleUnchecking = true;
 				}
 			}
@@ -162,7 +163,7 @@ namespace StreamDeckConfiguration.Views
 			oldPointerPosition = p;
 		}
 
-		private void OnToggleDrop(object? sender, DragEventArgs e)
+		private async void OnToggleDrop(object? sender, DragEventArgs e)
 		{
 			if (sender is ToggleButton toggleButton && toggleButton.DataContext is SDButton sdButton)
 			{
@@ -172,15 +173,15 @@ namespace StreamDeckConfiguration.Views
 					{
 						sdButton.KeyAction = new KeyAction(keyAction);
 
-						toggleButton.Content = new Viewbox
-						{
-							Stretch = Stretch.Uniform,
-							StretchDirection = StretchDirection.Both,
-							Child = new Projektanker.Icons.Avalonia.Icon
-							{
-								Value = sdButton.KeyAction.IconName
-							}
-						};
+						//toggleButton.Content = new Viewbox
+						//{
+						//	Stretch = Stretch.Uniform,
+						//	StretchDirection = StretchDirection.Both,
+						//	Child = new Projektanker.Icons.Avalonia.Icon
+						//	{
+						//		Value = sdButton.KeyAction.IconName
+						//	}
+						//};
 
 						if (toggleButton.IsChecked == true)
 						{
@@ -191,6 +192,7 @@ namespace StreamDeckConfiguration.Views
 							toggleButton.IsChecked = true;
 						}
 						GlobalData.Instance.DiscordNeeded = vm.CheckIfDiscordNeeded();
+						await GlobalData.SaveAsync();
 					}
 				}
 			}

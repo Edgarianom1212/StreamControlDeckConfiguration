@@ -11,7 +11,7 @@ using System.IO;
 
 namespace StreamDeckConfiguration;
 
-public partial class OpenApplication : KeyActionUserControl, INotifyPropertyChanged
+public partial class OpenApplication : KeyActionUserControl
 {
     public OpenApplication()
     {
@@ -46,11 +46,6 @@ public partial class OpenApplication : KeyActionUserControl, INotifyPropertyChan
 			}
 		}
 	}
-
-	public event PropertyChangedEventHandler PropertyChanged;
-
-	protected void OnPropertyChanged(string name) =>
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
 	private async void OpenFileButton_Clicked(object sender, RoutedEventArgs args)
 	{

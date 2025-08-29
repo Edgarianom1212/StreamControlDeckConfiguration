@@ -34,6 +34,11 @@
 								<ToggleButton Checked="SDButtonChecked" Unchecked="SDButtonUnchecked" Background="Transparent" VerticalAlignment="Stretch"
 											  HorizontalAlignment="Stretch" IsChecked="{Binding IsActive, Mode=TwoWay}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" ZIndex="5"
 											  DragDrop.Drop="OnToggleDrop">
+									<ToggleButton.Content>
+										<Viewbox Stretch="Uniform" StretchDirection="Both">
+											<i:Icon Value="{Binding KeyAction.IconName}"/>
+										</Viewbox>
+									</ToggleButton.Content>
 									<ToggleButton.ContextMenu>
 										<ContextMenu>
 											<MenuItem Header="Execute" Click="ToggleButtonExecuteAction"/>

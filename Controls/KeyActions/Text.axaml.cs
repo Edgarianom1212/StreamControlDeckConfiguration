@@ -11,10 +11,19 @@ public partial class Text : KeyActionUserControl
     {
         InitializeComponent();
         DataContext = this;
-        TopLevel = TopLevel.GetTopLevel(this);
     }
 
-    public string PasteText { get; set; }
-    public TopLevel TopLevel { get; set; }
-
+    private string pasteText;
+    public string PasteText
+    {
+        get => pasteText;
+        set
+        {
+            if (pasteText != value)
+            {
+                pasteText = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 }

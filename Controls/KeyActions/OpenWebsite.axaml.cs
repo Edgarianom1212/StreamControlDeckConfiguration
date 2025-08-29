@@ -13,5 +13,17 @@ public partial class OpenWebsite : KeyActionUserControl
         DataContext = this;
     }
 
-    public string URL { get; set; }
+    private string url;
+    public string URL
+    {
+        get => url;
+        set
+        {
+            if (url != value)
+            {
+                url = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 }

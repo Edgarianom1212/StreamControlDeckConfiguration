@@ -9,19 +9,18 @@ using System.Text;
 
 namespace StreamDeckConfiguration;
 
-public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
+public partial class HotKey : KeyActionUserControl
 {
-	private bool _waitingForShortcut;
-
-	public event PropertyChangedEventHandler? PropertyChanged;
-	private void OnPropertyChanged([CallerMemberName] string? name = null)
-		=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+	private bool waitingForShortcut;
+	private bool setSCFromDisplay = true;
 
 	public HotKey()
 	{
 		InitializeComponent();
 		DataContext = this;
+		setSCFromDisplay = false;
 		ShortcutDisplay = "Click to set shortcut";
+		setSCFromDisplay = true;
 	}
 
 	protected override void OnInitialized()
@@ -32,21 +31,33 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 		button.AddHandler(KeyDownEvent, Button_KeyDown, RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
 	}
 
-	private string _shortcutDisplay = "";
+	private string shortcutDisplay = "";
 	public string ShortcutDisplay
 	{
-		get => _shortcutDisplay;
+		get => shortcutDisplay;
 		set
 		{
-			if (_shortcutDisplay != value)
+			if (shortcutDisplay != value)
 			{
-				_shortcutDisplay = value;
+				shortcutDisplay = value;
 				OnPropertyChanged();
+
+				if (setSCFromDisplay)
+				{
+					try
+					{
+						if (value != null)
+						{
+							Shortcut = KeyGesture.Parse(value);
+						}
+					}
+					catch { };
+				}
 			}
 		}
 	}
 
-	public KeyGesture? Shortcut { get; private set; }
+	public KeyGesture? Shortcut { get; set; }
 
 	private bool IsModifierOnly(Key key) =>
 		key is Key.LeftCtrl or Key.RightCtrl or
@@ -68,15 +79,17 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 
 	private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
 	{
-		_waitingForShortcut = true;
+		waitingForShortcut = true;
+		setSCFromDisplay = false;
 		ShortcutDisplay = "Waiting for shortcut...";
+		setSCFromDisplay = true;
 		Focus();
 	}
 
 	private void Button_KeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
 	{
 		e.Handled = true;
-		if (!_waitingForShortcut)
+		if (!waitingForShortcut)
 			return;
 
 		var modifiers = e.KeyModifiers;
@@ -84,12 +97,16 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 
 		if (key == Key.None || IsModifierOnly(key))
 		{
+			setSCFromDisplay = false;
 			ShortcutDisplay = FormatShortcut(modifiers, null);
+			setSCFromDisplay = true;
 			return;
 		}
 
 		Shortcut = new KeyGesture(key, modifiers);
+		setSCFromDisplay = false;
 		ShortcutDisplay = Shortcut.ToString();
-		_waitingForShortcut = false;
+		setSCFromDisplay = true;
+		waitingForShortcut = false;
 	}
 }

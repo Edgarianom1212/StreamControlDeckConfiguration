@@ -1,13 +1,33 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Input;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace StreamDeckConfiguration.Models
 {
+
+
+	[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+	[JsonDerivedType(typeof(HotKeyData), typeDiscriminator: "HotKey")]
+	[JsonDerivedType(typeof(OpenWebsiteData), typeDiscriminator: "OpenWebsite")]
+	[JsonDerivedType(typeof(OpenApplicationData), typeDiscriminator: "OpenApplication")]
+	[JsonDerivedType(typeof(CloseApplicationData), typeDiscriminator: "CloseApplication")]
+	[JsonDerivedType(typeof(HttpRequestData), typeDiscriminator: "HttpRequest")]
+	[JsonDerivedType(typeof(TextPasteData), typeDiscriminator: "Text")]
+	public abstract record ActionData;
+
+	public record HotKeyData(string? ShortcutDisplay) : ActionData;
+	public record OpenWebsiteData(string Url) : ActionData;
+	public record OpenApplicationData(string FilePath, string FileName) : ActionData;
+	public record CloseApplicationData(string FilePath, string FileName) : ActionData;
+	public record HttpRequestData(string RequestString, string? Body) : ActionData;
+	public record TextPasteData(string PasteText) : ActionData;
+
 	public class KeyAction : ReactiveObject
 	{
 

@@ -13,6 +13,25 @@ public partial class HttpRequest : KeyActionUserControl
         DataContext = this;
     }
 
-    public string RequestString { get; set; }
-    public string RequestBody { get; set; }
+    private string requestString;
+    public string RequestString
+    {
+        get => requestString;
+        set
+        {
+            requestString = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string requestBody;
+    public string RequestBody
+    {
+        get => requestBody;
+        set
+        {
+            requestBody = value;
+            OnPropertyChanged();
+        }
+    }
 }

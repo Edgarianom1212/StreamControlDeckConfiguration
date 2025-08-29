@@ -20,6 +20,8 @@ using Avalonia.Threading;
 using StreamDeckConfiguration.Helpers;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using StreamDeckConfiguration.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace StreamDeckConfiguration;
 
@@ -33,10 +35,68 @@ public class GlobalData : ReactiveObject
 	private const int KEYEVENTF_KEYUP = 0x0002;
 	private const byte VK_CONTROL = 0x11;
 
+	public ObservableCollection<SDButton> SDButtons { get; set; }
+
 	public List<KeyAction> KeyActionList { get; set; }
 	public Window MainWindow { get; set; }
 
 	private DispatcherTimer timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(2) };
+
+	public static AppConfig Config { get; private set; } = new();
+
+	public static ConfigStore<AppConfig> Store { get; } = new();
+
+	private static int _initialized = 0;
+
+	public static async Task InitializeAsync()
+	{
+		if (System.Threading.Interlocked.Exchange(ref _initialized, 1) == 1)
+			return;
+
+		Config = await Store.LoadAsync(() => AppConfig.CreateDefault());
+
+		for (int i = 0; i < Instance.SDButtons.Count; i++)
+		{
+			if (Config.Keys.Count >= i)
+			{
+				if (Config.Keys[i].Action != null)
+				{
+					Control control = ActionMapper.ToControl(Config.Keys[i].Action);
+
+					foreach(KeyAction action in Instance.KeyActionList)
+					{
+						if (action.Config.GetType() == control.GetType())
+						{
+							KeyAction ka = new KeyAction(action);
+							ka.Config = control;
+							Instance.SDButtons[i].KeyAction = ka;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public static async Task SaveAsync()
+	{
+		for (int i = 0; i < Instance.SDButtons.Count; i++)
+		{
+			List<KeyConfig> list = GlobalData.Config.Keys;
+
+			if (list.Count >= i)
+			{
+				KeyConfig currentConfig = list[i];
+				KeyAction keyAction = Instance.SDButtons[i].KeyAction;
+				if (keyAction != null)
+				{
+					currentConfig.IconName = keyAction.IconName;
+					currentConfig.Action = ActionMapper.ToData(keyAction.Config);
+				}
+			}
+		}
+
+		await Store.SaveAsync(Config);
+	}
 
 	private bool isDiscordOpen = false;
 	public bool IsDiscordOpen
@@ -73,6 +133,8 @@ public class GlobalData : ReactiveObject
 	{
 		Instance = this;
 
+		GlobalData.InitializeAsync(); // <-- asynchron laden
+
 		KeyActionList = new List<KeyAction>()
 		{
 			new KeyAction("HTTP Request", "mdi-web", new HttpRequest(), GeneralGroup),
@@ -81,7 +143,7 @@ public class GlobalData : ReactiveObject
 			new KeyAction("Close Application", "mdi-close-box-outline", new CloseApplication(), GeneralGroup),
 			new KeyAction("Text", "mdi-text-recognition", new Text(), GeneralGroup),
 			new KeyAction("HotKey", "mdi-view-grid-plus-outline", new HotKey(), GeneralGroup),
-			new KeyAction("Mute", "mdi-microphone-off", new DiscordMute(), DiscordGroup),
+			//new KeyAction("Mute", "mdi-microphone-off", new DiscordMute(), DiscordGroup),
 		};
 	}
 
@@ -102,7 +164,7 @@ public class GlobalData : ReactiveObject
 				CloseApplication(closeApplication.FilePath);
 				break;
 			case Text text:
-				PasteText(text.PasteText, text.TopLevel);
+				PasteText(text.PasteText);
 				break;
 			case HotKey hotKey:
 				PerformHotKey(hotKey.Shortcut);
@@ -165,7 +227,7 @@ public class GlobalData : ReactiveObject
 		}
 	}
 
-	private async void PasteText(string text, TopLevel topLevel)
+	private async void PasteText(string text)
 	{
 		try
 		{
@@ -225,8 +287,8 @@ public class GlobalData : ReactiveObject
 
 	private void PerformHotKey(KeyGesture keyGesture)
 	{
-		if (!TryMapKey(keyGesture.Key, out var mainKey))
-			return;
+		if (keyGesture == null) return;
+		if (!TryMapKey(keyGesture.Key, out var mainKey)) return;
 
 		var modifiers = new List<VirtualKeyCode>();
 		if (keyGesture.KeyModifiers.HasFlag(KeyModifiers.Control))

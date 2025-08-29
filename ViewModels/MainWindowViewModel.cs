@@ -22,18 +22,19 @@ namespace StreamDeckConfiguration.ViewModels
 
 		public MainWindowViewModel()
 		{
+			new GlobalData();
+
 			SDButtonCount = 12;
-			SDButtons = new ObservableCollection<SDButton>();
+			GlobalData.Instance.SDButtons = new ObservableCollection<SDButton>();
 			ActiveKeyAction = new KeyAction("", "", InitLabel, new("none", ""));
 
-			new GlobalData();
 
 			CheckPortsForStreamDeck();
 
 			for (int i = 0; i < SDButtonCount; i++)
 			{
 				SDButton sDButton = new SDButton(i + 1);
-				SDButtons.Add(sDButton);
+				GlobalData.Instance.SDButtons.Add(sDButton);
 			}
 
 			LoadSDConfig();
@@ -43,11 +44,11 @@ namespace StreamDeckConfiguration.ViewModels
 
 		public bool CheckIfDiscordNeeded()
 		{
-			for (int i = 0; i < SDButtons.Count; i++)
+			for (int i = 0; i < GlobalData.Instance.SDButtons.Count; i++)
 			{
-				if (SDButtons[i].KeyAction != null)
+				if (GlobalData.Instance.SDButtons[i].KeyAction != null)
 				{
-					if (SDButtons[i].KeyAction.Group == GlobalData.Instance.DiscordGroup)
+					if (GlobalData.Instance.SDButtons[i].KeyAction.Group == GlobalData.Instance.DiscordGroup)
 					{
 						return true;
 					}
@@ -63,13 +64,13 @@ namespace StreamDeckConfiguration.ViewModels
 
 		public void ActivateSDButtonConfig(int Index)
 		{
-			if (SDButtons.ElementAt(Index).KeyAction == null)
+			if (GlobalData.Instance.SDButtons.ElementAt(Index).KeyAction == null)
 			{
 				ActiveKeyAction = new KeyAction("", "", NoActionLabel, new("none", ""));
 			}
 			else
 			{
-				ActiveKeyAction = SDButtons.ElementAt(Index).KeyAction;
+				ActiveKeyAction = GlobalData.Instance.SDButtons.ElementAt(Index).KeyAction;
 			}
 		}
 
@@ -126,15 +127,15 @@ namespace StreamDeckConfiguration.ViewModels
 				string indexString = msg.Substring(buttonMessageLength);
 				int index = int.Parse(indexString);
 
-				for (int i = 0; i < SDButtons.Count; i++)
+				for (int i = 0; i < GlobalData.Instance.SDButtons.Count; i++)
 				{
-					if (SDButtons[i].Index == index)
+					if (GlobalData.Instance.SDButtons[i].Index == index)
 					{ 
-						if (SDButtons[i].KeyAction != null)
+						if (GlobalData.Instance.SDButtons[i].KeyAction != null)
 						{
-							if (SDButtons[i].KeyAction.Config is UserControl)
+							if (GlobalData.Instance.SDButtons[i].KeyAction.Config is UserControl)
 							{
-								GlobalData.Instance.ExecuteAction(SDButtons[i].KeyAction.Config);
+								GlobalData.Instance.ExecuteAction(GlobalData.Instance.SDButtons[i].KeyAction.Config);
 							}
 						}
 					}
@@ -142,7 +143,7 @@ namespace StreamDeckConfiguration.ViewModels
 			}
 		}
 
-		public ObservableCollection<SDButton> SDButtons { get; set; }
+		public ObservableCollection<SDButton> SDButtons => GlobalData.Instance.SDButtons;
 		public SerialPort StreamDeckPort { get; set; }
 
 		public List<KeyAction> KeyActionList => GlobalData.Instance.KeyActionList;
