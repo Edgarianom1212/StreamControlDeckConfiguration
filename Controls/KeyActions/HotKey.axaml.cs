@@ -15,10 +15,19 @@ namespace StreamDeckConfiguration;
 
 public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 {
+	// Whether we are currently waiting for the user to press a shortcut
 	private bool waitingForShortcut;
+
+	// Guard flag to avoid recursive updates when changing ShortcutDisplay
 	private bool setSCFromDisplay = true;
+
+	// Handle for the low-level keyboard hook
 	private IntPtr hook = IntPtr.Zero;
+
+	// Delegate reference to prevent GC from collecting the callback
 	private HookProc? proc;
+
+	// Set of currently pressed virtual key codes
 	private readonly HashSet<uint> downVKs = new();
 
 	public HotKey()
@@ -26,6 +35,7 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 		InitializeComponent();
 		DataContext = this;
 
+		// Default display text before a shortcut is set
 		setSCFromDisplay = false;
 		ShortcutDisplay = "Click to set shortcut";
 		setSCFromDisplay = true;
@@ -35,15 +45,24 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 	{
 		base.OnInitialized();
 		var button = this.FindControl<Button>("MyShortcutButton");
+
+		// Clicking the button starts capturing a new shortcut
 		button.Click += Button_Click;
+
+		// KeyDown handler is only used outside of capture mode
 		button.AddHandler(KeyDownEvent, Button_KeyDown, RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
 	}
 
 	protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
 	{
+		// Ensure the hook is removed when the control is detached
 		StopHook();
 		base.OnDetachedFromVisualTree(e);
 	}
+
+	// ==========================
+	//      Bindable Property
+	// ==========================
 
 	private string shortcutDisplay = "";
 	public string ShortcutDisplay
@@ -55,6 +74,8 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 			{
 				shortcutDisplay = value;
 				OnPropertyChanged();
+
+				// Try to parse the shortcut string into a KeyGesture if we are allowed
 				if (setSCFromDisplay)
 				{
 					try
@@ -62,23 +83,31 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 						if (!string.IsNullOrWhiteSpace(value))
 							Shortcut = KeyGesture.Parse(value);
 					}
-					catch { }
+					catch { /* ignore parse errors */ }
 				}
 			}
 		}
 	}
 
+	// Stores the final captured shortcut
 	public KeyGesture? Shortcut { get; private set; }
+
 	public event PropertyChangedEventHandler? PropertyChanged;
 	protected void OnPropertyChanged([CallerMemberName] string? name = null)
 		=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
+	// ==========================
+	//      Helper Methods
+	// ==========================
+
+	// Determines if a key is only a modifier (Ctrl, Shift, Alt, Win)
 	private static bool IsModifierOnly(Key key) =>
 		key is Key.LeftCtrl or Key.RightCtrl or
 			   Key.LeftShift or Key.RightShift or
 			   Key.LeftAlt or Key.RightAlt or
 			   Key.LWin or Key.RWin;
 
+	// Format a KeyGesture as a string, e.g. "Ctrl + Shift + S"
 	private static string FormatShortcut(KeyModifiers modifiers, Key? key)
 	{
 		var sb = new StringBuilder();
@@ -90,28 +119,43 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 		return sb.ToString().TrimEnd(' ', '+');
 	}
 
+	// ==========================
+	//      Capture Workflow
+	// ==========================
+
+	// Called when user clicks the button to set a new shortcut
 	private void Button_Click(object? sender, RoutedEventArgs e)
 	{
 		waitingForShortcut = true;
+
+		// Update display to inform user
 		setSCFromDisplay = false;
 		ShortcutDisplay = "Waiting for shortcut...";
 		setSCFromDisplay = true;
 
+		// Start low-level hook so we can capture system shortcuts
 		StartHook();
+
+		// Ensure this control has focus
 		Focus();
 	}
 
+	// Called once a full shortcut is captured
 	private void FinishCapture(KeyModifiers mods, Key key)
 	{
 		Shortcut = new KeyGesture(key, mods);
+
 		setSCFromDisplay = false;
 		ShortcutDisplay = Shortcut.ToString();
 		setSCFromDisplay = true;
 
 		waitingForShortcut = false;
+
+		// Remove the keyboard hook again
 		StopHook();
 	}
 
+	// Fallback key handling (not used during capture mode, since hook intercepts everything)
 	private void Button_KeyDown(object? sender, KeyEventArgs e)
 	{
 		if (waitingForShortcut)
@@ -122,12 +166,13 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 	}
 
 	// ==========================
-	//       Keyboard Hook
+	//     Keyboard Hook Logic
 	// ==========================
+
 	private void StartHook()
 	{
 		if (hook != IntPtr.Zero) return;
-		proc = HookCallback;
+		proc = HookCallback; // keep delegate alive
 		var hMod = GetModuleHandle(null);
 		hook = SetWindowsHookEx(WH_KEYBOARD_LL, proc, hMod, 0);
 		if (hook == IntPtr.Zero)
@@ -144,6 +189,7 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 		downVKs.Clear();
 	}
 
+	// Callback for each keyboard event
 	private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 	{
 		if (nCode < 0)
@@ -156,21 +202,25 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 		bool isDown = msg is KeyboardMessage.WM_KEYDOWN or KeyboardMessage.WM_SYSKEYDOWN;
 		bool isUp = msg is KeyboardMessage.WM_KEYUP or KeyboardMessage.WM_SYSKEYUP;
 
+		// Maintain the set of currently pressed keys
 		if (isDown) downVKs.Add(vk);
 		if (isUp) downVKs.Remove(vk);
 
 		if (waitingForShortcut)
 		{
+			// Build modifiers from pressed keys
 			var mods = KeyModifiers.None;
 			if (downVKs.Contains(0x10) || downVKs.Contains(0xA0) || downVKs.Contains(0xA1)) mods |= KeyModifiers.Shift;
 			if (downVKs.Contains(0x11) || downVKs.Contains(0xA2) || downVKs.Contains(0xA3)) mods |= KeyModifiers.Control;
 			if (downVKs.Contains(0x12) || downVKs.Contains(0xA4) || downVKs.Contains(0xA5)) mods |= KeyModifiers.Alt;
 			if (downVKs.Contains(0x5B) || downVKs.Contains(0x5C)) mods |= KeyModifiers.Meta;
 
+			// Determine the main non-modifier key
 			Key? mainKey = TryMapVKToAvaloniaKey(vk, out var mapped) && !IsModifierOnly(mapped)
 				? mapped
 				: FirstNonModifierFromSet(downVKs);
 
+			// Update the UI display text live
 			Dispatcher.UIThread.Post(() =>
 			{
 				setSCFromDisplay = false;
@@ -178,17 +228,21 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 				setSCFromDisplay = true;
 			});
 
+			// If a non-modifier key was pressed, finalize the capture
 			if (isDown && mainKey is { } realKey && !IsModifierOnly(realKey))
 			{
 				Dispatcher.UIThread.Post(() => FinishCapture(mods, realKey));
 			}
 
+			// Swallow all events so the OS does not react (e.g., prevent Snipping Tool on Win+Shift+S)
 			return (IntPtr)1;
 		}
 
+		// If not in capture mode, just pass the event to the next hook/OS
 		return CallNextHookEx(hook, nCode, wParam, lParam);
 	}
 
+	// Find the first non-modifier key currently pressed
 	private static Key? FirstNonModifierFromSet(HashSet<uint> vks)
 	{
 		foreach (var v in vks)
@@ -199,21 +253,22 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 		return null;
 	}
 
+	// Map a Windows Virtual-Key code to Avalonia's Key enum
 	private static bool TryMapVKToAvaloniaKey(uint vk, out Key key)
 	{
-		// A-Z
+		// Letters A-Z
 		if (vk >= 0x41 && vk <= 0x5A)
 		{
 			key = Key.A + (int)(vk - 0x41);
 			return true;
 		}
-		// 0-9
+		// Numbers 0-9
 		if (vk >= 0x30 && vk <= 0x39)
 		{
 			key = Key.D0 + (int)(vk - 0x30);
 			return true;
 		}
-		// F1-F24
+		// Function keys F1-F24
 		if (vk >= 0x70 && vk <= 0x87)
 		{
 			key = Key.F1 + (int)(vk - 0x70);
@@ -242,7 +297,7 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 			0x6E => Key.Decimal,
 			0x6F => Key.Divide,
 
-			// Modifier
+			// Modifiers
 			0x10 or 0xA0 => Key.LeftShift,
 			0xA1 => Key.RightShift,
 			0x11 or 0xA2 => Key.LeftCtrl,
@@ -257,7 +312,10 @@ public partial class HotKey : KeyActionUserControl, INotifyPropertyChanged
 		return key != Key.None;
 	}
 
-	// --- Win32 Interop ---
+	// ==========================
+	//     Win32 Interop
+	// ==========================
+
 	private const int WH_KEYBOARD_LL = 13;
 
 	private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
