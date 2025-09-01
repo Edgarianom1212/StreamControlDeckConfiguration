@@ -16,7 +16,7 @@
 		<Border Grid.Row="0" Grid.ColumnSpan="2">
 			<Panel Margin="30,10,30,0">
 				<Label Content="{Binding ActiveKeyAction.ActionName, FallbackValue=ActionName}" Padding="0" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-				<Button i:Attached.Icon="mdi-delete" FontSize="15" Background="{StaticResource ControlBackground}" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+				<Button i:Attached.Icon="mdi-delete" Click="RemoveKeyAction" FontSize="15" Background="{StaticResource ControlBackground}" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 			</Panel>
 		</Border>
 		<Separator Margin="30,-140,30,0" Grid.ColumnSpan="2" Grid.RowSpan="2" IsVisible="{Binding ActiveKeyAction.ActionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>

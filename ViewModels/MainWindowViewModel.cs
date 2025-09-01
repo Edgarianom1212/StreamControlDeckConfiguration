@@ -27,6 +27,7 @@ namespace StreamDeckConfiguration.ViewModels
 			SDButtonCount = 12;
 			GlobalData.Instance.SDButtons = new ObservableCollection<SDButton>();
 			ActiveKeyAction = new KeyAction("", "", InitLabel, new("none", ""));
+			ActiveKeyActionIndex = -1;
 
 
 			CheckPortsForStreamDeck();
@@ -67,10 +68,12 @@ namespace StreamDeckConfiguration.ViewModels
 			if (GlobalData.Instance.SDButtons.ElementAt(Index).KeyAction == null)
 			{
 				ActiveKeyAction = new KeyAction("", "", NoActionLabel, new("none", ""));
+				ActiveKeyActionIndex = -1;
 			}
 			else
 			{
 				ActiveKeyAction = GlobalData.Instance.SDButtons.ElementAt(Index).KeyAction;
+				ActiveKeyActionIndex = Index;
 			}
 		}
 
@@ -154,6 +157,13 @@ namespace StreamDeckConfiguration.ViewModels
 		{
 			get => activeKeyAction;
 			set => this.RaiseAndSetIfChanged(ref activeKeyAction, value);
+		}
+
+		private int activeKeyActionIndex;
+		public int ActiveKeyActionIndex
+		{
+			get => activeKeyActionIndex;
+			set => this.RaiseAndSetIfChanged(ref activeKeyActionIndex, value);
 		}
 	}
 }

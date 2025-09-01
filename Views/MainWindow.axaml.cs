@@ -63,6 +63,7 @@ namespace StreamDeckConfiguration.Views
 			if (handleUnchecking)
 			{
 				vm.ActiveKeyAction = new Models.KeyAction("", "", vm.InitLabel, new("none", ""));
+				vm.ActiveKeyActionIndex = -1;
 			}
 		}
 

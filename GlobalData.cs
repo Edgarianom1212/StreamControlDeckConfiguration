@@ -92,6 +92,11 @@ public class GlobalData : ReactiveObject
 					currentConfig.IconName = keyAction.IconName;
 					currentConfig.Action = ActionMapper.ToData(keyAction.Config);
 				}
+				else
+				{
+					currentConfig.IconName = null;
+					currentConfig.Action = null;
+				}
 			}
 		}
 
