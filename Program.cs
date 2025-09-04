@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO.Pipes;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.ReactiveUI;
@@ -11,15 +13,30 @@ namespace StreamDeckConfiguration
 {
     internal sealed class Program
     {
-        // Initialization code. Don't use any Avalonia, third-party APIs or any
-        // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-        // yet and stuff might break.
-        [STAThread]
+
+		private const string AppId = "StreamDeckConfiguration.SingleInstance";
+		private const string PipeName = "StreamDeckConfiguration.ShowPipe";
+
+		// Initialization code. Don't use any Avalonia, third-party APIs or any
+		// SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+		// yet and stuff might break.
+		[STAThread]
         public static void Main(string[] args)
         {
-			bool startHidden = args.Any(a => string.Equals(a, "--hidden", StringComparison.OrdinalIgnoreCase));
 
-			BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+			using var mutex = new System.Threading.Mutex(initiallyOwned: true, name: $"Global\\{AppId}", out bool isNew);
+
+
+			if (isNew)
+			{
+				//first instance -> start new application
+				BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+			}
+			else
+			{
+				//second instance -> send "SHOW" to the first instance and immediately close second instance
+				TrySignalExistingInstanceToShow();
+			}
 
 			AppDomain.CurrentDomain.UnhandledException += (s, e) =>
 			{
@@ -44,5 +61,22 @@ namespace StreamDeckConfiguration
                 .LogToTrace()
                 .UseReactiveUI();
         }
-    }
+
+		private static void TrySignalExistingInstanceToShow()
+		{
+			try
+			{
+				using var client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
+				// kurzer Timeout, falls die Server-Pipe gerade noch nicht lauscht
+				client.Connect(300);
+				var msg = Encoding.UTF8.GetBytes("SHOW");
+				client.Write(msg, 0, msg.Length);
+				client.Flush();
+			}
+			catch
+			{
+				// Nichts tun: wenn keine Instanz lauscht, einfach leise beenden
+			}
+		}
+	}
 }
