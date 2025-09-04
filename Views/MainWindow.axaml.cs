@@ -35,6 +35,12 @@ namespace StreamDeckConfiguration.Views
 			InitializeComponent();
 			vm = new MainWindowViewModel();
 			DataContext = vm;
+
+			Closing += (s, e) =>
+			{
+				e.Cancel = true;
+				Hide();
+			};
 		}
 
 
@@ -173,16 +179,6 @@ namespace StreamDeckConfiguration.Views
 					if (e.Data.Get("KeyAction") is KeyAction keyAction)
 					{
 						sdButton.KeyAction = new KeyAction(keyAction);
-
-						//toggleButton.Content = new Viewbox
-						//{
-						//	Stretch = Stretch.Uniform,
-						//	StretchDirection = StretchDirection.Both,
-						//	Child = new Projektanker.Icons.Avalonia.Icon
-						//	{
-						//		Value = sdButton.KeyAction.IconName
-						//	}
-						//};
 
 						if (toggleButton.IsChecked == true)
 						{

@@ -46,13 +46,8 @@ public class GlobalData : ReactiveObject
 
 	public static ConfigStore<AppConfig> Store { get; } = new();
 
-	private static int _initialized = 0;
-
 	public static async Task InitializeAsync()
 	{
-		if (System.Threading.Interlocked.Exchange(ref _initialized, 1) == 1)
-			return;
-
 		Config = await Store.LoadAsync(() => AppConfig.CreateDefault());
 
 		for (int i = 0; i < Instance.SDButtons.Count; i++)
@@ -138,8 +133,6 @@ public class GlobalData : ReactiveObject
 	{
 		Instance = this;
 
-		GlobalData.InitializeAsync(); // <-- asynchron laden
-
 		KeyActionList = new List<KeyAction>()
 		{
 			new KeyAction("HTTP Request", "mdi-web", new HttpRequest(), GeneralGroup),
@@ -148,12 +141,17 @@ public class GlobalData : ReactiveObject
 			new KeyAction("Close Application", "mdi-close-box-outline", new CloseApplication(), GeneralGroup),
 			new KeyAction("Text", "mdi-text-recognition", new Text(), GeneralGroup),
 			new KeyAction("HotKey", "mdi-view-grid-plus-outline", new HotKey(), GeneralGroup),
-			//new KeyAction("Mute", "mdi-microphone-off", new DiscordMute(), DiscordGroup),
 		};
 	}
 
 	public async void ExecuteAction(Control keyActionUserControl)
 	{
+		if (!Dispatcher.UIThread.CheckAccess())
+		{
+			Dispatcher.UIThread.Post(() => ExecuteAction(keyActionUserControl));
+			return;
+		}
+
 		switch (keyActionUserControl)
 		{
 			case HttpRequest httpRequest:
